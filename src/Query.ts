@@ -9,6 +9,8 @@ type OrderBy = [string, 'ASC' | 'DESC'];
 
 type JoinOperator =
     | 'JOIN'
+    | 'LEFT JOIN'
+    | 'RIGHT JOIN'
     | 'INNER JOIN'
     | 'LEFT OUTER JOIN'
     | 'RIGHT OUTER JOIN'
@@ -24,6 +26,10 @@ type JoinOperator =
     | 'ASOF JOIN'
     | 'LEFT ASOF JOIN';
 
+type ArrayJoinOperator =
+    | 'ARRAY JOIN'
+    | 'LEFT ARRAY JOIN';
+
 export class Query extends FilterableQuery {
     private readonly connection: ClickHouse;
     private readonly logger: Logger | null;
@@ -38,6 +44,7 @@ export class Query extends FilterableQuery {
     private limitByPart: string[] = [];
     private offsetPart: number | string | null = null;
     private joinPart: Array<[JoinOperator, Query | string, string, string]> = [];
+    private arrayJoinPart: Array<[ArrayJoinOperator, Query | string, string]> = [];
     private aliasPart: [string, 'first' | 'last'] | null = null;
 
     constructor(ch: ClickHouse, logger: Logger | null) {
@@ -84,6 +91,11 @@ export class Query extends FilterableQuery {
             operator = 'INNER JOIN';
         }
         this.joinPart.push([operator, rightTable, alias, on]);
+        return this;
+    }
+
+    public arrayJoin(operator: ArrayJoinOperator, rightTable: Query | string, alias: string) {
+        this.arrayJoinPart.push([operator, rightTable, alias]);
         return this;
     }
 
@@ -178,6 +190,17 @@ export class Query extends FilterableQuery {
             });
         }
 
+        if (this.arrayJoinPart.length > 0) {
+            this.arrayJoinPart.forEach(([operator, rightTable, alias]) => {
+                sql += ` ${operator} `;
+                if (rightTable instanceof Query) {
+                    sql += `(${rightTable.generateSql()}) AS ${alias}`;
+                } else {
+                    sql += `${rightTable} AS ${alias}`;
+                }
+            });
+        }
+
         if (this.hasWhereConditions()) {
             sql += ` ${this.generateWhere()}`;
         }
@@ -197,7 +220,7 @@ export class Query extends FilterableQuery {
 
 
         if (this.offsetPart !== null && this.limitPart !== null) {
-            sql += ` OFFSET ${this.offsetPart} ROW FETCH FIRST ${this.limitPart} ROWS ONLY`;
+            sql += ` LIMIT ${this.limitPart} OFFSET ${this.offsetPart}`;
         } else if (this.offsetPart === null && this.limitPart !== null) {
             sql += ` LIMIT ${this.limitPart}`;
             if (this.limitByPart.length > 0) {
