@@ -2,9 +2,9 @@
 
 ClickHouse Query is intuitive query builder to simplify usage of [ClickHouse](https://clickhouse.com/).
 
-[![npm version](https://img.shields.io/npm/v/clickhouse-query.svg?style=flat-square)](https://www.npmjs.org/package/clickhouse-query)
-[![install size](https://img.shields.io/badge/dynamic/json?url=https://packagephobia.com/v2/api.json?p=clickhouse-query&query=$.install.pretty&label=install%20size&style=flat-square)](https://packagephobia.now.sh/result?p=clickhouse-query)
-[![npm downloads](https://img.shields.io/npm/dm/clickhouse-query.svg?style=flat-square)](https://npm-stat.com/charts.html?package=clickhouse-query)
+[![npm version](https://img.shields.io/npm/v/clickhouse-builder.svg?style=flat-square)](https://www.npmjs.org/package/clickhouse-builder)
+[![install size](https://img.shields.io/badge/dynamic/json?url=https://packagephobia.com/v2/api.json?p=clickhouse-builder&query=$.install.pretty&label=install%20size&style=flat-square)](https://packagephobia.now.sh/result?p=clickhouse-builder)
+[![npm downloads](https://img.shields.io/npm/dm/clickhouse-builder.svg?style=flat-square)](https://npm-stat.com/charts.html?package=clickhouse-builder)
 
 ## Table of Contents
 
@@ -12,25 +12,25 @@ ClickHouse Query is intuitive query builder to simplify usage of [ClickHouse](ht
 
 - [Features](#features)
 - [Usage](#usage)
-  * [Installation](#installation)
-  * [Quick start](#quick-start)
+    * [Installation](#installation)
+    * [Quick start](#quick-start)
 - [CREATE TABLE](#create-table)
 - [ALTER TABLE](#alter-table)
 - [INSERT](#insert)
 - [DELETE](#delete)
 - [UPDATE](#update)
 - [SELECT](#select)
-  * [FINAL](#final)
-  * [FROM](#from)
-  * [WHERE](#where)
-  * [HAVING](#having)
-  * [JOIN](#join)
-  * [LIMIT/OFFSET](#limitoffset)
-  * [WITH](#with)
-  * [Helper Functions](#helper-functions)
-    + [fx](#fx)
-    + [schema](#schema)
-  * [More examples](#more-examples)
+    * [FINAL](#final)
+    * [FROM](#from)
+    * [WHERE](#where)
+    * [HAVING](#having)
+    * [JOIN](#join)
+    * [LIMIT/OFFSET](#limitoffset)
+    * [WITH](#with)
+    * [Helper Functions](#helper-functions)
+        + [fx](#fx)
+        + [schema](#schema)
+    * [More examples](#more-examples)
 - [Tests](#tests)
 
 <!-- tocstop -->
@@ -60,19 +60,19 @@ ClickHouse Query is intuitive query builder to simplify usage of [ClickHouse](ht
 Using yarn:
 
 ```bash
-yarn add clickhouse-query
+yarn add clickhouse-builder
 ```
 
 Using npm:
 
 ```bash
-npm install clickhouse-query
+npm install clickhouse-builder
 ```
 
 Once the package is installed, you can import the library as follows:
 
 ```ts
-import {QueryBuilder, fx, expr, schema} from 'clickhouse-query';
+import {QueryBuilder, fx, expr, schema} from 'clickhouse-builder';
 ```
 
 ### Quick start
@@ -80,7 +80,7 @@ import {QueryBuilder, fx, expr, schema} from 'clickhouse-query';
 ```ts
 import {ClickHouse} from 'clickhouse';
 import winston from 'winston';
-import {QueryBuilder} from 'clickhouse-query';
+import {QueryBuilder} from 'clickhouse-builder';
 
 const clickhouse = new ClickHouse({
     url: 'http://localhost',
@@ -117,7 +117,7 @@ const users = await builder.query()
 Creating tables as simple as this:
 
 ```ts
-import {schema} from 'clickhouse-query';
+import {schema} from 'clickhouse-builder';
 
 await builder.createTable()
     .table('table_name')
@@ -130,7 +130,7 @@ await builder.createTable()
 Also, you can provide multiple columns to create:
 
 ```ts
-import {schema} from 'clickhouse-query';
+import {schema} from 'clickhouse-builder';
 
 await builder.createTable()
     .table('table_name')
@@ -144,7 +144,7 @@ await builder.createTable()
 Create table with `ORDER BY`:
 
 ```ts
-import {schema} from 'clickhouse-query';
+import {schema} from 'clickhouse-builder';
 
 await builder.createTable()
     .table('table_name')
@@ -159,7 +159,7 @@ await builder.createTable()
 Create table with `IF NOT EXISTS`:
 
 ```ts
-import {schema} from 'clickhouse-query';
+import {schema} from 'clickhouse-builder';
 
 await builder.createTable()
     .table('table_name')
@@ -177,8 +177,8 @@ Builder has special method called `alterTable()` to handle ALTER TABLE queries. 
 Add column:
 
 ```ts
-import {schema} from 'clickhouse-query';
-import {AddColumn} from 'clickhouse-query/AlterTable/AddColumn';
+import {schema} from 'clickhouse-builder';
+import {AddColumn} from 'clickhouse-builder/AlterTable/AddColumn';
 
 await builder.alterTable()
     .table('table_name')
@@ -190,7 +190,7 @@ await builder.alterTable()
 Drop column:
 
 ```ts
-import {DropColumn} from 'clickhouse-query/AlterTable/DropColumn';
+import {DropColumn} from 'clickhouse-builder/AlterTable/DropColumn';
 
 await builder.alterTable()
     .table('table_name')
@@ -202,7 +202,7 @@ await builder.alterTable()
 Rename column:
 
 ```ts
-import {RenameColumn} from 'clickhouse-query/AlterTable/RenameColumn';
+import {RenameColumn} from 'clickhouse-builder/AlterTable/RenameColumn';
 
 await builder.alterTable()
     .table('table_name')
@@ -214,8 +214,8 @@ await builder.alterTable()
 Modify column:
 
 ```ts
-import {schema} from 'clickhouse-query';
-import {ModifyColumn} from 'clickhouse-query/AlterTable/ModifyColumn';
+import {schema} from 'clickhouse-builder';
+import {ModifyColumn} from 'clickhouse-builder/AlterTable/ModifyColumn';
 
 await builder.alterTable()
     .table('table_name')
@@ -227,8 +227,8 @@ await builder.alterTable()
 Modify column with `AFTER`:
 
 ```ts
-import {schema} from 'clickhouse-query';
-import {ModifyColumn} from 'clickhouse-query/AlterTable/ModifyColumn';
+import {schema} from 'clickhouse-builder';
+import {ModifyColumn} from 'clickhouse-builder/AlterTable/ModifyColumn';
 
 await builder.alterTable()
     .table('table_name')
@@ -241,8 +241,8 @@ await builder.alterTable()
 Modify column with `FIRST`:
 
 ```ts
-import {schema} from 'clickhouse-query';
-import {ModifyColumn} from 'clickhouse-query/AlterTable/ModifyColumn';
+import {schema} from 'clickhouse-builder';
+import {ModifyColumn} from 'clickhouse-builder/AlterTable/ModifyColumn';
 
 await builder.alterTable()
     .table('table_name')
@@ -329,7 +329,7 @@ await builder.delete()
 Alternatively, you write example above as following:
 
 ```ts
-import {expr} from 'clickhouse-query';
+import {expr} from 'clickhouse-builder';
 
 await builder.delete()
     .table('metrics')
@@ -646,7 +646,7 @@ await builder.query()
 Using constant expression as "variable":
 
 ```ts
-import {expr} from 'clickhouse-query';
+import {expr} from 'clickhouse-builder';
 
 await builder.query()
     .with('2019-08-01 15:23:00', 'ts_upper_bound')
@@ -661,7 +661,7 @@ await builder.query()
 Using results of a scalar subquery:
 
 ```ts
-import {fx, expr} from 'clickhouse-query';
+import {fx, expr} from 'clickhouse-builder';
 
 await builder.query()
     .with([
@@ -688,13 +688,13 @@ Use `fx` helper to access ClickHouse functions.
 All helpers are simply wrappers which add extra syntax sugaring to help your IDE hint function arguments.
 
 ```ts
-import {fx} from 'clickhouse-query';
+import {fx} from 'clickhouse-builder';
 ```
 
 Usage example:
 
 ```ts
-import {fx} from 'clickhouse-query';
+import {fx} from 'clickhouse-builder';
 
 await builder.query()
     .select([
@@ -735,7 +735,7 @@ List of available helpers:
 Use `schema` helper to access ClickHouse data types. This helper can be used when creating tables or altering changes.
 
 ```ts
-import {schema} from 'clickhouse-query';
+import {schema} from 'clickhouse-builder';
 
 await builder.createTable()
     .table('table_name')
