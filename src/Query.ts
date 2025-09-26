@@ -43,7 +43,7 @@ export class Query extends FilterableQuery {
     private limitPart: number | string | null = null;
     private limitByPart: string[] = [];
     private offsetPart: number | string | null = null;
-    private joinPart: Array<[JoinOperator, Query | string, string, string]> = [];
+    private joinPart: Array<[JoinOperator, Query | string, string, string | null]> = [];
     private arrayJoinPart: Array<[ArrayJoinOperator, Query | string, string]> = [];
     private aliasPart: [string, 'first' | 'last'] | null = null;
 
@@ -86,11 +86,11 @@ export class Query extends FilterableQuery {
         return this;
     }
 
-    public join(operator: JoinOperator, rightTable: Query | string, alias: string, on: string) {
+    public join(operator: JoinOperator, rightTable: Query | string, alias: string, on?: string) {
         if (operator === 'JOIN') {
             operator = 'INNER JOIN';
         }
-        this.joinPart.push([operator, rightTable, alias, on]);
+        this.joinPart.push([operator, rightTable, alias, on || null]);
         return this;
     }
 
@@ -186,7 +186,9 @@ export class Query extends FilterableQuery {
                 } else {
                     sql += `${rightTable} ${alias}`;
                 }
-                sql += ` ON ${on}`;
+                if (on !== null) {
+                    sql += ` ON ${on}`;
+                }
             });
         }
 
